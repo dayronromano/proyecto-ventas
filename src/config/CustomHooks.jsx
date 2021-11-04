@@ -10,12 +10,10 @@ import {
   setDoc
 } from "firebase/firestore";
 import {
-  createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut
 } from 'firebase/auth'
 import { auth, database, crearUsuario } from "./firebase.jsx";
-import { getUnixTime } from "date-fns/esm";
 
 export const getCollection = async (nombreColeccion) => {
 
@@ -49,6 +47,27 @@ export const getFilterCollection = async (nombreColeccion, keyDocumento, condici
       return document;
     })
 
+    return elementos
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
+export const getCustomFilterCollection = async (nombreColeccion, keyDocumento,value) => {
+
+  try {
+    const response = await getDocs(query(collection(database, nombreColeccion)));
+    const elementos = [];
+    response.docs.map((doc) => {
+      const document = {
+        id: doc.id,
+        ...doc.data()
+      }
+      if(document[keyDocumento].toLowerCase().includes(value.toLowerCase())){
+        console.log(document);
+        elementos.push(document);
+      }
+    })
     return elementos
   } catch (error) {
     throw new Error(error.message)
