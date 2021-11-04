@@ -1,0 +1,81 @@
+.App {
+  height: 100vh;
+  width: 100vw;
+}
+.bg-login{
+  background: #003459;
+}
+
+.Sidebar {
+  height: 100%;
+  width: 14rem;
+  background-color: #003459;
+}
+
+.SidebarList {
+  width: 100%;
+  height: auto;
+  padding: 0;
+  margin: 0;
+}
+
+.row-item {
+  width: 100%;
+  list-style-type: none;
+  margin: 5px 15px 0px;
+  border-radius: 4px;
+}
+
+.row-item:hover {
+  cursor: pointer;
+  opacity: 1;
+  background: rgba(255,255,255,0.23);
+}
+
+.row-active {
+  opacity: 1;
+  background: rgba(255,255,255,0.23);
+}
+
+.row-item .icon {
+  /* flex: 30%;
+  place-items: center; */
+  font-size: 20px;
+  float: left;
+  margin-right: 15px;
+  line-height: 30px;
+  width: 30px;
+  text-align: center;
+}
+
+.title {
+  flex: 70%;
+  text-decoration: none;
+  color: white;
+}
+a:visited {
+  text-decoration: none;
+}
+a:link {
+  text-decoration: none;
+}
+
+.main {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+.contenido {
+  height: 60vh;
+}
+
+.loading {
+  height: 60vh;
+}
+
+.table-devapps{
+  color: #fff;
+  border-color: #003459;
+  background: #003459;
+}
