@@ -49,11 +49,14 @@ export const Usuario = () => {
 
   const handleRole = async (e) => {
     e.preventDefault();
-    // debugger
-    crearUsuario(role);
+    setLoading(true);
+    await createUser(collectionTypes.USERS, role);
+      //console.log('res',respuesta);
     setRole({nombre: '', email: '', estado: '', role: '', password: ''});
-
-    /* history.push('/roles') */
+    setTimeout(function(){
+      setLoading(false);
+      history.push('/roles')
+    }, 500)
   }
 
   const handleActualizarRole = async (e) => {
@@ -66,20 +69,6 @@ export const Usuario = () => {
     setRole({nombre: '', email: '', estado: '', role: '', password: ''});
     history.push('/roles')
   }
-
-  const crearUsuario = React.useCallback(async (role) => {
-    try {
-      const respuesta = await createUser(role.email, role.password);
-      const roleTemp = {
-        ...role
-      }
-      delete roleTemp.password;
-      const userCreated = await saveDocument(collectionTypes.USERS, roleTemp, respuesta);
-    } catch (error) {
-      setError(error.message)
-    }
-  }, [setError])
-
 
   return (
     <div className="container">

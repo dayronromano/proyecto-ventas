@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-import { collection, getDocs, getDoc, query, doc, addDoc, deleteDoc, updateDoc } from "firebase/firestore";
+import { collection, getDocs, setDoc, getDoc, query, doc, addDoc, deleteDoc, updateDoc } from "firebase/firestore";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
 import { createUser } from './CustomHooks';
 
@@ -94,15 +94,20 @@ export const eliminarDocumentoDatabase = async (nombreDatabase, id) => {
   }
 }
 
-export const crearUsuario = async (email, password) => {
+export const crearUsuario = async (nombreColeccion, data) => {
   try {
     const detachedAuth = initializeApp(firebaseConfig, "Secondary");
     const secondaryAuth = getAuth(detachedAuth);
-    const userCredential = await createUserWithEmailAndPassword(secondaryAuth, email, password)
+    const userCredential = await createUserWithEmailAndPassword(secondaryAuth, data.email, data.password)
     //console.log(userCredential.user);
     console.log(userCredential.user.uid);
     signOut(secondaryAuth);
-    return userCredential.user.uid;
+    const roleTemp = {
+      ...data
+    }
+    delete roleTemp.password;
+    const userCreated  = await setDoc(doc(database, nombreColeccion, userCredential.user.uid), data);
+    return userCreated;
   } catch (error) {
     return error;
   }

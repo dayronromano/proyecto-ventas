@@ -133,10 +133,9 @@ export const firebaseLogin = async (email, password) => {
 
 }
 
-export const createUser = async (email, password) => {
-
+export const createUser = async (nombreColeccion,data) => {
   try {
-    const credencialesUsuario = await crearUsuario(email, password)
+    const credencialesUsuario = await crearUsuario(nombreColeccion, data)
     return credencialesUsuario;
   } catch (error) {
     throw new Error(error.code)
