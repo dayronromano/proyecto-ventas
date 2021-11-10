@@ -1,13 +1,12 @@
 .App {
-  height: 100vh;
-  width: 100vw;
+  min-height: 100vh;
 }
 .bg-login{
   background: #003459;
 }
 
 .Sidebar {
-  height: 100%;
+  min-height: 100%;
   width: 14rem;
   background-color: #003459;
 }

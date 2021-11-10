@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { getCollection, getCustomFilterCollection, updateDocument } from '../config/CustomHooks.jsx';
-import { collectionTypes, collectionOperators } from '../types/databaseTypes.js';
+import { collectionTypes } from '../types/databaseTypes.js';
 import { Loading } from './Loading.jsx';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit, faPlus, faSearch } from '@fortawesome/free-solid-svg-icons'
@@ -12,7 +12,7 @@ export const Roles = () => {
   const [buscar, setBuscar] = useState('');
 
   useEffect(() => {
-    cargarListaUsuarios()
+    cargarListaUsuarios();
   }, [setListaUsuarios])
 
 

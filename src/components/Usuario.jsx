@@ -1,8 +1,9 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { DebounceInput } from 'react-debounce-input';
 import { useParams } from 'react-router';
+import Swal from 'sweetalert2';
 import { Link, useHistory } from 'react-router-dom';
-import { createUser, saveDocument } from '../config/CustomHooks.jsx';
+import { createUser} from '../config/CustomHooks.jsx';
 import { consultarDocumentoDatabase, actualizarDocumentoDatabase } from '../config/firebase.jsx';
 import { AuthContext } from '../context/AuthProvider.jsx';
 import { collectionTypes } from '../types/databaseTypes.js';
@@ -20,8 +21,6 @@ export const Usuario = () => {
   const { id } = useParams();
   const [loading, setLoading] = useState(false)
   const [role, setRole] = useState(initialState)
-  /* const [usuario] = useState(user) */
-  const [error, setError] = useState('');
   const history = useHistory();
 
   const consultarUsuario = React.useCallback(async () => {
@@ -53,6 +52,11 @@ export const Usuario = () => {
     await createUser(collectionTypes.USERS, role);
       //console.log('res',respuesta);
     setRole({nombre: '', email: '', estado: '', role: '', password: ''});
+    Swal.fire({
+      title: 'Usuario creado exitosamente!',
+      icon: 'success',
+      showConfirmButton: false,
+    })
     setTimeout(function(){
       setLoading(false);
       history.push('/roles')
@@ -67,6 +71,11 @@ export const Usuario = () => {
     delete roleTemp.password;
     await actualizarDocumentoDatabase(collectionTypes.USERS, id, roleTemp);
     setRole({nombre: '', email: '', estado: '', role: '', password: ''});
+    Swal.fire({
+      title: 'Usuario editado exitosamente!',
+      icon: 'success',
+      showConfirmButton: false,
+    })
     history.push('/roles')
   }
 
@@ -162,9 +171,6 @@ export const Usuario = () => {
                         </select>
                       </div>
                     </div>
-                    {
-                      error && <div className="alert alert-danger">{error}</div>
-                    }
                     <div className="d-grid gap-2 col-6 mx-auto">
                       <button className="btn btn-primary ms-3">
                         <span className="pe-2">
