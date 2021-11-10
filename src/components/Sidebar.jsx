@@ -45,16 +45,6 @@ export const Sidebar = () => {
             </NavLink>
           }
           <NavLink className="row-item d-flex p-2 align-items-center"
-            activeClassName="row-active" to="/ventas" exact
-          >
-            <FontAwesomeIcon
-              color="white"
-              size="1x"
-              className="icon"
-              icon={faFileInvoiceDollar} />
-            <div className="title">Ventas</div>
-          </NavLink>
-          <NavLink className="row-item d-flex p-2 align-items-center"
             activeClassName="row-active" to="/productos" exact
           >
             <FontAwesomeIcon
@@ -63,6 +53,16 @@ export const Sidebar = () => {
               className="icon"
               icon={faClipboardList} />
             <div className="title">Productos</div>
+          </NavLink>
+          <NavLink className="row-item d-flex p-2 align-items-center"
+            activeClassName="row-active" to="/ventas" exact
+          >
+            <FontAwesomeIcon
+              color="white"
+              size="1x"
+              className="icon"
+              icon={faFileInvoiceDollar} />
+            <div className="title">Ventas</div>
           </NavLink>
         </ul>
       </nav>

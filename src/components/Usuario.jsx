@@ -38,7 +38,6 @@ export const Usuario = () => {
     setLoading(false)
   }, [id])
 
-
   useEffect(() => {
     if (id !== 'create') {
       consultarUsuario();
@@ -50,8 +49,7 @@ export const Usuario = () => {
     e.preventDefault();
     setLoading(true);
     await createUser(collectionTypes.USERS, role);
-      //console.log('res',respuesta);
-    setRole({nombre: '', email: '', estado: '', role: '', password: ''});
+    setRole(initialState);
     Swal.fire({
       title: 'Usuario creado exitosamente!',
       icon: 'success',
@@ -70,7 +68,7 @@ export const Usuario = () => {
     }
     delete roleTemp.password;
     await actualizarDocumentoDatabase(collectionTypes.USERS, id, roleTemp);
-    setRole({nombre: '', email: '', estado: '', role: '', password: ''});
+    setRole(initialState);
     Swal.fire({
       title: 'Usuario editado exitosamente!',
       icon: 'success',

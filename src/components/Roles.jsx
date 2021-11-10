@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { getCollection, getCustomFilterCollection, updateDocument } from '../config/CustomHooks.jsx';
+import { getCollection, getCustomFilterCollection } from '../config/CustomHooks.jsx';
 import { collectionTypes } from '../types/databaseTypes.js';
 import { Loading } from './Loading.jsx';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -15,46 +15,29 @@ export const Roles = () => {
     cargarListaUsuarios();
   }, [setListaUsuarios])
 
-
   const cargarListaUsuarios = async () => {
-    setLoading(true)
-    const usuarios = await getCollection(collectionTypes.USERS)
-    console.log(usuarios)
-    setListaUsuarios(usuarios)
-    setLoading(false)
+    setLoading(true);
+    const usuarios = await getCollection(collectionTypes.USERS);
+    setListaUsuarios(usuarios);
+    setLoading(false);
   }
 
   const filtrarUsuarios = async (search) => {
-    setLoading(true)
-    const usuarios = await getCustomFilterCollection(collectionTypes.USERS, "nombre", search)
-    setListaUsuarios(usuarios)
-    setLoading(false)
-  }
-
-  const handleNombre = async (e, { nombre, ...rest }) => {
-    setLoading(true)
-    const { target: { value } } = e;
-    const userTemporal = {
-      nombre: value,
-      ...rest
-    }
-    console.log(userTemporal)
-    await updateDocument(collectionTypes.USERS, userTemporal, userTemporal.id)
-    setLoading(false)
-    await cargarListaUsuarios()
+    setLoading(true);
+    const respuesta = await getCustomFilterCollection(collectionTypes.USERS, "nombre", search);
+    setListaUsuarios(respuesta);
+    setLoading(false);
   }
 
   const handleBuscar = async (e) => {
     e.preventDefault()
     const search = buscar;
-
-    if(!search.trim() ){
+    if (!search.trim()) {
       await cargarListaUsuarios();
-    }else{
+    } else {
       await filtrarUsuarios(search);
     }
   }
-
 
   return (
     <div className="mt-3">
@@ -71,7 +54,6 @@ export const Roles = () => {
           </button>
         </Link>
       </h2>
-
       {
         loading ?
           <div className="loading d-flex align-items-center justify-content-center">
@@ -94,8 +76,8 @@ export const Roles = () => {
               </div>
               <div className="col-1">
                 <button className="btn btn-primary ms-3"
-                    onClick={handleBuscar}
-                  >
+                  onClick={handleBuscar}
+                >
                   <span>Buscar</span>
                 </button>
               </div>
