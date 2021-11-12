@@ -1,189 +1,219 @@
-import { faArrowLeft, faSave } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { add, format } from 'date-fns';
-import React, { useContext, useEffect, useState } from 'react'
-import { DebounceInput } from 'react-debounce-input';
+import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router';
-import { Link } from 'react-router-dom';
-import { saveDocument } from '../config/CustomHooks.jsx';
-import { consultarDocumentoDatabase } from '../config/firebase.jsx';
-import { AuthContext } from '../context/AuthProvider.jsx';
-
-import { collectionTypes } from '../types/databaseTypes.js';
+import Swal from 'sweetalert2';
+import { Link, useHistory } from 'react-router-dom';
+import { actualizarDocumentoDatabase, consultarDocumentoDatabase, guardarDatabase } from '../config/firebase.jsx';
+import { getCollection, getFilterCollection } from '../config/CustomHooks';
+import { collectionTypes, collectionOperators } from '../types/databaseTypes.js';
 import { Loading } from './Loading.jsx';
-
-
+import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export const Venta = () => {
-  const { stateUser: { user } } = useContext(AuthContext);
+  const initialProducto = {
+    id: '',
+    nombre: '',
+    cantidad: '',
+    precio: '',
+  }
   const initialState = {
-    descripcion: '',
-    fechaFactura: format(new Date(), 'yyyy-MM-dd'),
-    fechaVencimiento: format(add(new Date(), { months: 1 }), 'yyyy-MM-dd'),
+    nombre: '',
+    identificacion: '',
+    fecha: '',
     precioTotal: '',
-    idVendedor: '',
-    estadoVenta: 'creacion',
-    idResponsable: '',
-    idCreador: '',
+    estado: '',
+    encargado: {id: '', nombre: ''},
+    productos: []
+  }
+  const { id } = useParams();
+  const [loading, setLoading] = useState(false)
+  const [venta, setVenta] = useState(initialState)
+  const [responsables, setResponsables] = useState([])
+  const [productos, setProductos] = useState([])
+  const history = useHistory();
+
+  const consultarVenta = React.useCallback(async () => {
+    const ventaTemp = await consultarDocumentoDatabase(collectionTypes.VENTAS, id)
+    console.log('consultar', ventaTemp);
+    setVenta(
+      {
+        nombre: ventaTemp.nombre,
+        identificacion: ventaTemp.identificacion,
+        fecha: ventaTemp.fecha,
+        precioTotal: ventaTemp.precioTotal,
+        estado: ventaTemp.estado,
+        encargado: ventaTemp.encargado,
+        productos: ventaTemp.productos
+      }
+    )
+  }, [id])
+
+  useEffect(() => {
+    setLoading(true);
+    cargarListaResponsables();
+    cargarListaProductos();
+    if (!id.includes('create')) {
+      consultarVenta();
+    } else {
+      let productos = [];
+      productos.push(initialProducto);
+      setVenta({
+        ...venta,
+        productos: productos
+      })
+    }
+    setLoading(false);
+  }, [id])
+
+  const cargarListaResponsables = async () => {
+    const responsables = await getFilterCollection(collectionTypes.USERS, "role", collectionOperators.EQUAL, "vendedor");
+    setResponsables(responsables);
+  }
+
+  const cargarListaProductos = async () => {
+    const respuesta = await getCollection(collectionTypes.PRODUCTOS);
+    setProductos(respuesta);
+  }
+
+  const handleVendedor = async (e) => {
+    e.preventDefault();
+    const { target: { value } } = e;
+    const element = responsables;
+    let index = element.findIndex(x => x.id === value);
+    setVenta({
+      ...venta,
+      encargado : {id : ((index >= 0)? element[index].id : '') , nombre : ((index >= 0)? element[index].nombre : '')}
+    })
+    return false;
+  }
+
+  const handleProducto = async (e, id, key) => {
+    e.preventDefault();
+    const { target: { value } } = e;
+    const element = venta.productos;
+    let index = element.findIndex(x => x.id === id);
+    if (index >= 0) {
+      element[index][key] = value;
+      if(key == 'id'){
+        const listProductos = productos;
+        let indexPro = listProductos.findIndex(x => x.id === value);
+        if(indexPro >= 0){
+          element[index].precio = listProductos[indexPro].precio;
+        }
+      }
+      setVenta({
+        ...venta,
+        productos: element
+      });
+    }
+    return false;
+  }
+
+  const handleCantidadProducto = async (e, id) => {
+    e.preventDefault();
+    const { target: { value } } = e;
+    const element = venta.productos;
+    let index = element.findIndex(x => x.id === id);
+    if (index >= 0 && id != '') {
+      element[index].cantidad = value;
+      setVenta({
+        ...venta,
+        precioTotal : getPrecioTotal(element),
+        productos: element
+      });
+    }
+    return false;
+  }
+
+  const getPrecioTotal = (element) => {
+    let total = 0;
+    element.map((value)=>{
+        console.log((parseInt(value.cantidad) * parseInt(value.precio)));
+        if(value.cantidad && value.precio){
+          total += (parseInt(value.cantidad) * parseInt(value.precio));
+        }
+    })
+    return total;
   }
 
 
-  console.log('Entro');
-
-  const { id } = useParams();
-  const numeroVenta = id.split('-')[1];
-  const [loading, setLoading] = useState(false)
-  const [venta, setVenta] = useState(initialState)
-  const [usuario] = useState(user)
-  // const user = currentUser()
-
-  // const [descripcion, setDescripcion] = useState('')
-  // const [fechaFactura, setFechaFactura] = useState(format(new Date(), 'yyyy-MM-dd'))
-  // const [fechaVencimiento, setFechaVencimiento] = useState(format(add(new Date(), { months: 1 }), 'yyyy-MM-dd'))
-  // const [precioTotal, setPrecioTotal] = useState('')
-  // const [idVendedor, setIdVendedor] = useState('')
-  // const [estadoVenta, setEstadoVenta] = useState('creacion')
-  // const [idResponsable, setIdResponsable] = useState('')
-  // const [idCreador, setIdCreador] = useState('')
-
-
-
-
-  // const listaUsuarios = useGetCollection(collectionTypes.USERS)
-  // console.log(listaUsuarios);
-  // const [listaResponsables, setListaResponsables] = useState([])
-  const [error, setError] = useState('')
-
-  const consultarVenta = React.useCallback(async () => {
-    setLoading(true)
-    const ventaTemp = await consultarDocumentoDatabase(collectionTypes.VENTAS, id)
-    console.log(ventaTemp);
-    setVenta(
-      {
-        descripcion: ventaTemp.descripcion,
-        fechaFactura: ventaTemp.fechaFactura,
-        fechaVencimiento: ventaTemp.fechaVencimiento,
-        precioTotal: ventaTemp.precioTotal,
-        idVendedor: ventaTemp.idVendedor,
-        estadoVenta: ventaTemp.estadoVenta,
-        idResponsable: ventaTemp.idResponsable,
-        idCreador: ventaTemp.idCreador,
-      }
-    )
-    setLoading(false)
-  }, [id])
-
-
-  useEffect(() => {
-
-    if (id !== 'create') {
-      consultarVenta()
-      return
-    }
-
-
-
-    // setLoading(true)
-
-    // getCollection(collectionTypes.USERS)
-    //   .then(usuarios => {
-    //     setListaUsuarios(usuarios)
-    //   })
-
-    // getFilterCollection(collectionTypes.USERS, "role", collectionOperators.EQUAL, "vendedor")
-    //   .then(responsables => {
-    //     setListaResponsables(responsables)
-
-    //   })
-
-    // setLoading(false)
-
-    // cargarListaResponsables().then(() => cargarListaUsuarios())
-
-  }, [id, consultarVenta])
-
-  // const cargarListaUsuarios = async () => {
-  //   // setLoading(true)
-  //   const usuarios = await getCollection(collectionTypes.USERS)
-  //   // console.log(usuarios)
-  //   // setListaUsuarios(usuarios)
-  //   // setLoading(false)
-  // }
-
-  // const cargarListaResponsables = async () => {
-  //   // setLoading(true)
-  //   const responsables = await getFilterCollection(collectionTypes.USERS, "role", collectionOperators.EQUAL, "vendedor")
-  //   // console.log(responsables)
-  //   setListaResponsables(responsables)
-  //   // setLoading(false)
-  // }
-
-
-
-
-
-  const handleVenta = async (e, { ...rest }, user) => {
-    e.preventDefault()
-
-
-    if (!venta.descripcion.trim()) {
-      setError('Debe ingresar un producto')
-      return
-    }
-
-    if (!venta.precioTotal.trim()) {
-      setError('Debe ingresar un precio total')
-      return
-    }
-
-    // setIdCreador(user.uid);
-    // setIdVendedor(listaUsuarios[0]?.id);
-    // setIdResponsable(listaResponsables[0]?.id);
-
-
-    // debugger
-    const ventaTemp = {
-      idCreador: user.id, ...rest
-    }
-    // console.log(
-    //   // descripcion,
-    //   // fechaFactura,
-    //   // fechaVencimiento,
-    //   // precioTotal,
-    //   idVendedor,
-    //   // estadoVenta,
-    //   idResponsable,
-    //   idCreador,
-    // );
-    // const user = currentUser()
-    // console.log(user.uid);
-    setVenta(ventaTemp)
+  const handleAgregarProducto = async (e) => {
+    e.preventDefault();
     console.log(venta);
+    const element = venta.productos;
+    let index = element.findIndex(x => x.id === '');
+    if (!(index >= 0)) {
+      element.push(initialProducto);
+      setVenta({
+        ...venta,
+        productos: element
+      });
+    }
+  }
 
+  const handleBorrarProducto = async (e, id) => {
+    e.preventDefault();
+    const element = venta.productos;
+    let index = element.findIndex(x => x.id === id);
+    if (index >= 0 && id != '') {
+      element.splice(index, 1);
+      setVenta({
+        ...venta,
+        productos: element
+      });
+    }
+  }
 
-    await saveDocument(collectionTypes.VENTAS, venta)
+  const handleVenta = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    await guardarDatabase(collectionTypes.VENTAS, venta);
+    setVenta(initialState);
+    Swal.fire({
+      title: 'Venta creada exitosamente!',
+      icon: 'success',
+      showConfirmButton: false,
+    })
+    setTimeout(function () {
+      setLoading(false);
+      history.push('/ventas')
+    }, 500)
   }
 
   const handleActualizarVenta = async (e) => {
     e.preventDefault()
-
-
-    // await updateDocument(collectionTypes.VENTAS, venta.id, venta)
-    // history.push('/ventas')
+    setLoading(true);
+    await actualizarDocumentoDatabase(collectionTypes.VENTAS, id, venta)
+    setVenta(initialState);
+    Swal.fire({
+      title: 'Venta editada exitosamente!',
+      icon: 'success',
+      showConfirmButton: false,
+    })
+    setTimeout(function () {
+      setLoading(false);
+      history.push('/ventas')
+    }, 500)
   }
 
-
   return (
-
     <div className="container">
       <h2>
-        {/* {
-          id.includes('create') ? 'Creación ' : 'Editar '
-        } */}
+        {
+          id.includes('create') ? 'Crear ' : 'Editar '
+        }
         Venta
       </h2>
+      <nav aria-label="breadcrumb">
+        <ol className="breadcrumb">
+          <li className="breadcrumb-item">
+            <Link to="/ventas">Lista de Ventas</Link></li>
+          <li className="breadcrumb-item active" aria-current="page">{id.includes('create') ?
+            'Crear' : 'Editar'
+          } Venta</li>
+        </ol>
+      </nav>
       <hr className="mt-3" />
-
       {
         loading ?
           <div className="loading d-flex align-items-center justify-content-center">
@@ -191,169 +221,179 @@ export const Venta = () => {
           </div>
           :
           <div className="row">
-
-            <form onSubmit={
-              e => handleVenta(e, venta, usuario)
-            }>
-
+            <form onSubmit={id.includes('create') ? handleVenta : handleActualizarVenta}>
               <div className="col-md-10 offset-md-1 col-lg-8 offset-lg-2">
                 <div className="card">
-                  <div className="card-header">
-                    Factura No.: <small className="text-primary">{`PSTORE-${numeroVenta}`}</small>
-                  </div>
                   <div className="card-body">
-                    <h5 className="card-title">Detalle factura</h5>
-
                     <div className="row mb-3">
-                      <div className="col-md-6">
-                        <label className="form-label">Descripcion</label>
-                        <DebounceInput
-                          minLength={2}
-                          debounceTimeout={1000}
+                      <div className="col-md-12">
+                        <label className="form-label">Nombre Cliente</label>
+                        <input
                           type="text"
                           className="form-control"
-                          value={venta.descripcion}
-                          onChange={(e) => setVenta({ ...venta, descripcion: e.target.value })}
+                          value={venta.nombre}
+                          required
+                          onChange={(e) => setVenta({ ...venta, nombre: e.target.value })}
                         />
                       </div>
-                      <div className="col-md-6">
+                      <div className="col-md-12">
+                        <label className="form-label">Identificacion Cliente</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          value={venta.identificacion}
+                          required
+                          onChange={(e) => setVenta({ ...venta, identificacion: e.target.value })}
+                        />
+                      </div>
+                      <div className="col-md-12">
                         <label className="form-label">Fecha Factura</label>
                         <input
                           type="date"
                           className="form-control"
-                          disabled
-                          value={venta.fechaFactura}
-                          onChange={(e) => setVenta({ ...venta, fechaFactura: e.target.value })}
+                          value={venta.fecha}
+                          required
+                          onChange={(e) => setVenta({ ...venta, fecha: e.target.value })}
                         />
                       </div>
-                    </div>
-
-                    <div className="row mb-3">
-                      <div className="col-md-6">
+                      <div className="col-md-12">
                         <label className="form-label">Precio Total</label>
-                        <DebounceInput
+                        <input
                           minLength={2}
-                          debounceTimeout={1000}
                           type="text"
                           className="form-control"
                           value={venta.precioTotal}
+                          disabled
+                          required
                           onChange={(e) => setVenta({ ...venta, precioTotal: e.target.value })}
                         />
                       </div>
-                      <div className="col-md-6">
-                        <label className="form-label">Fecha Pago</label>
-                        <input
-                          type="date"
-                          disabled
-                          className="form-control text-danger"
-                          value={venta.fechaVencimiento}
-                          onChange={(e) => setVenta({ ...venta, fechaVencimiento: e.target.value })}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="row mb-3">
-                      {/* <div className="col-md-6">
+                      <div className="col-md-12">
                         <label className="form-label">Vendedor</label>
                         <select className="form-select"
-                          value={
-                            venta.idVendedor
-                          }
-                          onChange={(e) => setVenta({ ...venta, idVendedor: e.target.value })}
-                          selectedValue={venta.idVendedor}
+                          value={venta.encargado.id}
+                          onChange={(e) => handleVendedor(e)}
                         >
+                          <option value="">Selecciona</option>
                           {
-                            listaUsuarios.map(usuario => (
-                              <option key={usuario.id} value={usuario.id}>{usuario.nombre || usuario.email}</option>
+                            responsables.map(responsable => (
+                              <option key={responsable.id} name={responsable.nombre} data-remove={responsable.nombre} value={responsable.id}>{responsable.nombre}</option>
                             ))
                           }
-
                         </select>
-                      </div> */}
-                      <div className="col-md-6">
+                      </div>
+                      <div className="col-md-12">
                         <label className="form-label">Estado Venta</label>
                         <select className="form-select text-capitalize"
-                          value={venta.estadoVenta}
-                          onChange={(e) => setVenta({ ...venta, estadoVenta: e.target.value })}
+                          value={venta.estado}
+                          required
+                          onChange={(e) => setVenta({ ...venta, estado: e.target.value })}
                         >
-                          <option value="creacion">creacion</option>
-                          <option value="embalaje">embalaje</option>
-                          <option value="despacho">despacho</option>
-                          <option value="ruta">ruta</option>
-                          <option value="recepcion">recepcion</option>
+                          <option value="">Selecciona</option>
+                          <option value="proceso">Proceso</option>
+                          <option value="cancelado">Cancelado</option>
+                          <option value="entregado">Entregado</option>
                         </select>
+                      </div>
+                      <div className="col-md-12">
+                        <label className="form-label">Productos</label>
+                        <div className="row">
+                          <div className="offset-9 col-3">
+                            <button className="btn btn-success float-end"
+                              onClick={e => handleAgregarProducto(e)}
+                            >
+                              <FontAwesomeIcon
+                                size="1x"
+                                className="icon"
+                                icon={faPlus} />
+                              <span className="ps-2">Agregar Producto</span>
+                            </button>
+                          </div>
+                        </div>
+                        <div className="row">
+                          <div className="col-md-10 offset-md-1">
+                            <table className="table table-hover table-bordered mt-2">
+                              <thead className="table-devapps">
+                                <tr>
+                                  <th scope="col">#</th>
+                                  <th scope="col">Nombre</th>
+                                  <th scope="col">Cantidad</th>
+                                  <th scope="col">Precio Unitario</th>
+                                  <th scope="col">Eliminar</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {
+                                  venta.productos.map((producto, index) => {
+                                    return (<tr key={producto.id}>
+                                      <th scope="row">{index + 1}</th>
+                                      <td>
+                                        <select className="form-select"
+                                          value={producto.id}
+                                          onChange={e => handleProducto(e, producto.id, 'id')}
+                                          >
+                                          <option value="">Selecciona</option>
+                                          {
+                                            productos.map(producto => (
+                                              <option key={producto.id} value={producto.id}>{producto.nombre}</option>
+                                              ))
+                                          }
+                                        </select>
+                                      </td>
+                                      <td>
+                                        <input
+                                          type="text"
+                                          className="form-control"
+                                          value={producto.cantidad}
+                                          required
+                                          onChange={e => handleCantidadProducto(e, producto.id)}
+                                          />
+                                      </td>
+                                      <td>
+                                        <input
+                                          type="text"
+                                          className="form-control"
+                                          value={producto.precio}
+                                          disabled
+                                          required
+                                        />
+                                      </td>
+                                      <td className="text-center">
+                                        {
+                                          (producto.id) &&
+                                          <button className="btn btn-danger btn-sm"
+                                            onClick={e => handleBorrarProducto(e, producto.id)}
+                                          >
+                                            <FontAwesomeIcon
+                                              size="1x"
+                                              className="icon"
+                                              icon={faTrash} />
+                                          </button>
+                                        }
+                                      </td>
+                                    </tr>)
+                                  })
+                                }
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
                       </div>
                     </div>
-
-                    {/* <div className="row mb-3">
-                      <div className="col-md-6">
-                        <label className="form-label">Responsable</label>
-                        <select className="form-select"
-                          value={venta.idResponsable}
-                          onChange={(e) => setVenta({ ...venta, idResponsable: e.target.value })}
-                          selectedValue={venta.idResponsable}
-                        >
-
-                          {
-                            listaResponsables.map(responsable => (
-                              <option key={responsable.id} value={responsable.id}>{responsable.nombre || responsable.email}</option>
-                            ))
-                          }
-
-                        </select>
-                      </div>
-
-                    </div> */}
-
-                    {
-                      error && <div className="alert alert-danger">{error}</div>
-                    }
-
-                    <div className="d-flex p-2 align-items-center">
-                      <Link
-                        className="btn btn-danger"
-                        to='/ventas'>
-                        <FontAwesomeIcon
-                          color="white"
-                          size="1x"
-                          className="icon"
-                          icon={faArrowLeft} />
-                        <span className="ps-2">Regresar</span>
-                      </Link>
-                      <button
-                        className="btn btn-primary ms-3"
-                        onClick={
-
-                          id.includes('create') ?
-                            handleVenta : handleActualizarVenta
-
-                        }
-                      >
+                    <div className="d-grid gap-2 col-6 mx-auto">
+                      <button className="btn btn-primary ms-3">
                         <span className="pe-2">
                           {id.includes('create') ?
-                            'Crear Venta' : 'Guardar Edición'
+                            'Crear' : 'Editar'
                           }</span>
-                        <FontAwesomeIcon
-                          color="white"
-                          size="1x"
-                          className="icon"
-                          icon={faSave} />
-
                       </button>
                     </div>
-
                   </div>
                 </div>
               </div>
-
             </form>
-
           </div>
       }
-
-
-
     </div>
-
   )
 }

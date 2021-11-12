@@ -63,8 +63,8 @@ export const Productos = () => {
           <>
             <div className="row mt-4">
               <div className="col-11">
-                <div class="input-group mb-3">
-                  <span class="input-group-text" id="basic-addon1"><FontAwesomeIcon
+                <div className="input-group mb-3">
+                  <span className="input-group-text" id="basic-addon1"><FontAwesomeIcon
                     size="1x"
                     className="icon"
                     icon={faSearch} /></span>
