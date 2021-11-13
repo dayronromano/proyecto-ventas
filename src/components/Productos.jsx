@@ -87,8 +87,8 @@ export const Productos = () => {
                 <tr>
                   <th scope="col">#</th>
                   <th scope="col">Nombre</th>
-                  <th scope="col">Cantidad</th>
                   <th scope="col">Precio Unitario</th>
+                  <th scope="col">Estado</th>
                   <th scope="col">Acciones</th>
                 </tr>
               </thead>
@@ -98,8 +98,8 @@ export const Productos = () => {
                     <tr key={producto.id}>
                       <th scope="row">{index + 1}</th>
                       <td>{producto.nombre}</td>
-                      <td>{producto.cantidad}</td>
                       <td>{producto.precio}</td>
+                      <td>{(producto.estado) ? 'Disponible' : 'No Disponible'}</td>
                       <td className="text-center">
                         <Link className="btn btn-primary btn-sm" to={`/productos/${producto.id}`}>
                           <FontAwesomeIcon

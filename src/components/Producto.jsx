@@ -9,8 +9,8 @@ import { Loading } from './Loading.jsx';
 export const Producto = () => {
   const initialState = {
     nombre: '',
-    cantidad: 0,
-    precio: 0
+    precio: 0,
+    estado: false
   };
   const { id } = useParams();
   const [loading, setLoading] = useState(false)
@@ -23,8 +23,8 @@ export const Producto = () => {
     setProducto(
       {
         nombre: produtoTemp.nombre,
-        cantidad: produtoTemp.cantidad,
-        precio: produtoTemp.precio
+        precio: produtoTemp.precio,
+        estado: produtoTemp.estado
       }
     )
     setLoading(false)
@@ -109,16 +109,6 @@ export const Producto = () => {
                         />
                       </div>
                       <div className="col-md-12">
-                        <label className="form-label">Cantidad</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={producto.cantidad}
-                          required
-                          onChange={(e) => setProducto({ ...producto, cantidad: e.target.value })}
-                        />
-                      </div>
-                      <div className="col-md-12">
                         <label className="form-label">Precio Unitario</label>
                         <input
                           type="text"
@@ -127,6 +117,18 @@ export const Producto = () => {
                           required
                           onChange={(e) => setProducto({ ...producto, precio: e.target.value })}
                         />
+                      </div>
+                      <div className="col-md-12">
+                        <label className="form-label">Estado</label>
+                        <select className="form-select text-capitalize"
+                          value={(producto.estado == 1)? "1" : "0"}
+                          required
+                          onChange={(e) => setProducto({ ...producto, estado: (e.target.value == 1)? true : false })}
+                        >
+                          <option value="">Selecciona</option>
+                          <option value="1">Disponible</option>
+                          <option value="0">No disponible</option>
+                        </select>
                       </div>
                     </div>
                     <div className="d-grid gap-2 col-6 mx-auto">

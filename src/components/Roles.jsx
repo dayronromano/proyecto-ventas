@@ -101,7 +101,7 @@ export const Roles = () => {
                       <td>{usuario.nombre}</td>
                       <td>{usuario.email}</td>
                       <td>{usuario.role}</td>
-                      <td>{(usuario.estado) ? 'Activo' : 'Inactivo'}</td>
+                      <td>{(usuario.estado) ? 'Autorizado' : 'No autorizado'}</td>
                       <td className="text-center">
                         <Link className="btn btn-primary btn-sm" to={`/roles/${usuario.id}`}>
                           <FontAwesomeIcon

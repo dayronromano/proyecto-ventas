@@ -71,7 +71,7 @@ export const Venta = () => {
   }
 
   const cargarListaProductos = async () => {
-    const respuesta = await getCollection(collectionTypes.PRODUCTOS);
+    const respuesta = await getFilterCollection(collectionTypes.PRODUCTOS, "estado", collectionOperators.EQUAL, true);
     setProductos(respuesta);
   }
 
@@ -159,6 +159,7 @@ export const Venta = () => {
       element.splice(index, 1);
       setVenta({
         ...venta,
+        precioTotal : getPrecioTotal(element),
         productos: element
       });
     }

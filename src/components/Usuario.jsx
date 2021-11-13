@@ -164,8 +164,8 @@ export const Usuario = () => {
                           onChange={(e) => setRole({ ...role, estado: ((parseInt(e.target.value) === 1) ? true : false) })}
                         >
                           <option value="">Seleccione</option>
-                          <option value="1">Activo</option>
-                          <option value="0">Inactivo</option>
+                          <option value="1">Autorizado</option>
+                          <option value="0">No autorizado</option>
                         </select>
                       </div>
                     </div>

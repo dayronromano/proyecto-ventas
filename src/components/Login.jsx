@@ -1,11 +1,9 @@
-import React, { useContext, useState } from 'react'
+import React, { useState } from 'react'
 import { Link, useHistory } from 'react-router-dom'
-import { createUser, firebaseLogin, getDocument, saveDocument } from '../config/CustomHooks.jsx'
-import { AuthContext } from '../context/AuthProvider.jsx'
+import { firebaseLogin, getDocument } from '../config/CustomHooks.jsx'
 import { collectionTypes } from '../types/databaseTypes.js'
 
 export const Login = ({ match: { path } }) => {
-  const { cerrarSession } = useContext(AuthContext)
   const history = useHistory();
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
