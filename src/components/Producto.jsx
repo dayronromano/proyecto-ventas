@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router';
 import Swal from 'sweetalert2';
 import { Link, useHistory } from 'react-router-dom';
-import { actualizarDocumentoDatabase, consultarDocumentoDatabase, guardarDatabase, usuario } from '../config/firebase';
+import { actualizarDocumentoDatabase, consultarDocumentoDatabase, guardarDatabase } from '../config/firebase';
 import { collectionTypes } from '../types/databaseTypes.js';
 import { Loading } from './Loading.jsx';
 
@@ -121,9 +121,9 @@ export const Producto = () => {
                       <div className="col-md-12">
                         <label className="form-label">Estado</label>
                         <select className="form-select text-capitalize"
-                          value={(producto.estado == 1)? "1" : "0"}
+                          value={(producto.estado)? "1" : "0"}
                           required
-                          onChange={(e) => setProducto({ ...producto, estado: (e.target.value == 1)? true : false })}
+                          onChange={(e) => setProducto({ ...producto, estado: (parseInt(e.target.value) === 1)? true : false })}
                         >
                           <option value="">Selecciona</option>
                           <option value="1">Disponible</option>
