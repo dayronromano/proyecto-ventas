@@ -13,47 +13,48 @@ export const Sidebar = () => {
     <div className="Sidebar text-white">
       <nav className="">
         <div className="container d-flex flex-column pt-4 text-center">
-          <small className="mt-2"><strong>Bienvenido</strong><br/>
-          {stateUser.user.email}
-          <br/>
-          {stateUser.user.role}
+          <small className="mt-2"><strong>Bienvenido</strong><br />
+            {stateUser.user.email}
+            <br />
+            {stateUser.user.role}
           </small>
         </div>
-        <hr/>
+        <hr />
         <ul className="SidebarList nav">
-            <NavLink className="row-item d-flex p-2 align-items-center"
-              activeClassName="row-active" to="/" exact
-              >
-              <FontAwesomeIcon
-                color="white"
-                size="1x"
-                className="icon"
-                icon={faHome} />
-              <div className="title">Home</div>
-            </NavLink>
-          {
-            stateUser.user.role === 'administrador' &&
-            <NavLink className="row-item d-flex p-2 align-items-center"
-              activeClassName="row-active" to="/roles" exact
-            >
-              <FontAwesomeIcon
-                color="white"
-                size="1x"
-                className="icon"
-                icon={faUsers} />
-              <div className="title">Usuarios</div>
-            </NavLink>
-          }
           <NavLink className="row-item d-flex p-2 align-items-center"
-            activeClassName="row-active" to="/productos" exact
+            activeClassName="row-active" to="/" exact
           >
             <FontAwesomeIcon
               color="white"
               size="1x"
               className="icon"
-              icon={faClipboardList} />
-            <div className="title">Productos</div>
+              icon={faHome} />
+            <div className="title">Home</div>
           </NavLink>
+          {
+            stateUser.user.role === 'administrador' &&
+            <>
+              <NavLink className="row-item d-flex p-2 align-items-center"
+                activeClassName="row-active" to="/roles" exact
+              >
+                <FontAwesomeIcon
+                  color="white"
+                  size="1x"
+                  className="icon"
+                  icon={faUsers} />
+                <div className="title">Usuarios</div>
+              </NavLink>
+              <NavLink className="row-item d-flex p-2 align-items-center"
+                activeClassName="row-active" to="/productos" exact
+              >
+                <FontAwesomeIcon
+                  color="white"
+                  size="1x"
+                  className="icon"
+                  icon={faClipboardList} />
+                <div className="title">Productos</div>
+              </NavLink> </>
+          }
           <NavLink className="row-item d-flex p-2 align-items-center"
             activeClassName="row-active" to="/ventas" exact
           >
