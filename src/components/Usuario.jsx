@@ -160,12 +160,13 @@ export const Usuario = () => {
                       <div className="col-md-6">
                         <label className="form-label">Estado</label>
                         <select className="form-select text-capitalize"
-                          value={(role.estado)? 1 : 0}
-                          onChange={(e) => setRole({ ...role, estado: ((parseInt(e.target.value) === 1) ? true : false) })}
+                          value={role.estado}
+                          onChange={(e) => setRole({ ...role, estado: e.target.value})}
                         >
                           <option value="">Seleccione</option>
-                          <option value="1">Autorizado</option>
-                          <option value="0">No autorizado</option>
+                          <option value="autorizado">Autorizado</option>
+                          <option value="No autorizado">No autorizado</option>
+                          <option value="pendiente">Pendiente</option>
                         </select>
                       </div>
                     </div>

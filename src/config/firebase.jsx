@@ -99,14 +99,13 @@ export const crearUsuario = async (nombreColeccion, data) => {
     const detachedAuth = initializeApp(firebaseConfig, "Secondary");
     const secondaryAuth = getAuth(detachedAuth);
     const userCredential = await createUserWithEmailAndPassword(secondaryAuth, data.email, data.password)
-    //console.log(userCredential.user);
-    console.log(userCredential.user.uid);
     signOut(secondaryAuth);
     const roleTemp = {
       ...data
     }
     delete roleTemp.password;
-    const userCreated  = await setDoc(doc(database, nombreColeccion, userCredential.user.uid), data);
+    const userCreated  = await setDoc(doc(database, nombreColeccion, userCredential.user.uid), roleTemp);
+    console.log(data,userCreated);
     return userCreated;
   } catch (error) {
     return error;

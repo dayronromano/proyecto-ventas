@@ -3,7 +3,7 @@ import { useParams } from 'react-router';
 import Swal from 'sweetalert2';
 import { Link, useHistory } from 'react-router-dom';
 import { actualizarDocumentoDatabase, consultarDocumentoDatabase, guardarDatabase } from '../config/firebase.jsx';
-import { getCollection, getFilterCollection } from '../config/CustomHooks';
+import { getFilterCollection } from '../config/CustomHooks';
 import { collectionTypes, collectionOperators } from '../types/databaseTypes.js';
 import { Loading } from './Loading.jsx';
 import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
