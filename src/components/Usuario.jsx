@@ -50,15 +50,15 @@ export const Usuario = () => {
     setLoading(true);
     await createUser(collectionTypes.USERS, role);
     setRole(initialState);
-    Swal.fire({
-      title: 'Usuario creado exitosamente!',
-      icon: 'success',
-      showConfirmButton: false,
-    })
     setTimeout(function(){
       setLoading(false);
+      Swal.fire({
+        title: 'Usuario creado exitosamente!',
+        icon: 'success',
+        showConfirmButton: false,
+      })
       history.push('/roles')
-    }, 800)
+    }, 1300)
   }
 
   const handleActualizarRole = async (e) => {
