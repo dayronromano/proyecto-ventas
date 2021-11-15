@@ -58,7 +58,7 @@ export const Usuario = () => {
     setTimeout(function(){
       setLoading(false);
       history.push('/roles')
-    }, 500)
+    }, 800)
   }
 
   const handleActualizarRole = async (e) => {
