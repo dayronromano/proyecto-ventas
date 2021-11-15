@@ -58,7 +58,7 @@ export const Usuario = () => {
         showConfirmButton: false,
       })
       history.push('/roles')
-    }, 1300)
+    }, 6500)
   }
 
   const handleActualizarRole = async (e) => {
